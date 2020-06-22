@@ -62,7 +62,7 @@ install(
 	INCLUDES DESTINATION "include/gumbo"
 )
 
-option(BUILD_GUMBO_TESTS "Builds gumbo tests" ON)
+option(BUILD_GUMBO_TESTS "Builds gumbo tests" OFF)
 
 if(BUILD_GUMBO_TESTS)
 	add_subdirectory(tests)
