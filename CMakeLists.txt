@@ -62,8 +62,8 @@ install(
 	INCLUDES DESTINATION "include/gumbo"
 )
 
-#option(BUILD_GUMBO_TESTS "Builds gumbo tests" OFF)
+option(BUILD_GUMBO_TESTS "Builds gumbo tests" OFF)
 
-#if(BUILD_GUMBO_TESTS)
-#	add_subdirectory(tests)
-#endif()
+if(BUILD_GUMBO_TESTS)
+	add_subdirectory(tests)
+endif()
