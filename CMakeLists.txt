@@ -1,68 +1,58 @@
 cmake_minimum_required(VERSION 3.11)
 project(gumbo-parser)
 
-# C++ version check
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	message("enabled c++11")
-	elseif(COMPILER_SUPPORTS_CXX0X)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-		else()
-			message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-			endif()
-			
+set(GUMBO_SOURCES
+        gumbo-parser/src/attribute.h
+        gumbo-parser/src/attribute.c
+        gumbo-parser/src/char_ref.h
+        gumbo-parser/src/char_ref.c
+        gumbo-parser/src/error.h
+        gumbo-parser/src/error.c
+        gumbo-parser/src/gumbo.h
+        gumbo-parser/src/insertion_mode.h
+        gumbo-parser/src/parser.h
+        gumbo-parser/src/parser.c
+        gumbo-parser/src/string_buffer.h
+        gumbo-parser/src/string_buffer.c
+        gumbo-parser/src/string_piece.h
+        gumbo-parser/src/string_piece.c
+        gumbo-parser/src/tag_enum.h
+        gumbo-parser/src/tag_gperf.h
+        gumbo-parser/src/tag_sizes.h
+        gumbo-parser/src/tag_strings.h
+        gumbo-parser/src/tag.c
+        gumbo-parser/src/token_type.h
+        gumbo-parser/src/tokenizer.h
+        gumbo-parser/src/tokenizer.c
+        gumbo-parser/src/tokenizer_states.h
+        gumbo-parser/src/utf8.h
+        gumbo-parser/src/utf8.c
+        gumbo-parser/src/util.h
+        gumbo-parser/src/util.c
+        gumbo-parser/src/vector.h
+        gumbo-parser/src/vector.c)
 
-file(GLOB HEADERS_FILES 
-src/*.h
-)
-
-file(GLOB EXPORT_HEADERS_FILES
-src/gumbo.h
-src/tag_enum.h
-)
-
-if(MSVC)
-	list(APPEND EXPORT_HEADERS_FILES visualc/include/strings.h)
+if (MSVC)
+    include_directories(gumbo-parser/visualc/include)
+    set(GUMBO_SOURCES ${GUMBO_SOURCES} gumbo-parser/visualc/include/strings.h)
 endif()
-	
-file(INSTALL ${EXPORT_HEADERS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/include/gumbo)
 
-file(GLOB SOURCES_FILES
-src/*.c
-)
-
-add_library(gumbo STATIC
-${HEADERS_FILES}
-${SOURCES_FILES}
-)
-
-target_include_directories(gumbo
-PUBLIC
-$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-$<INSTALL_INTERFACE:include>
-# For support include different way. (gq/gumbo.h or gumbo.h)
-$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include/gumbo>
-$<INSTALL_INTERFACE:include/gumbo>
-)
-
-install(FILES
-${EXPORT_HEADERS_FILES} DESTINATION
-${CMAKE_INSTALL_PREFIX}/include/gumbo
-)
+add_library(gumbo-parser STATIC ${GUMBO_SOURCES})
+include_directories(gumbo-parser/src)
 
 install(
-	TARGETS gumbo
-	EXPORT "${TARGETS_EXPORT_NAME}"
-	LIBRARY DESTINATION "lib"
-	ARCHIVE DESTINATION "lib"
-	RUNTIME DESTINATION "bin"
-	INCLUDES DESTINATION "include/gumbo"
+  TARGETS gumbo-parser
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )
 
-option(BUILD_GUMBO_TESTS "Builds gumbo tests" OFF)
+if(NOT DISABLE_INSTALL_HEADERS)
+  install(FILES  src/gumbo.h src/tag_enum.h DESTINATION include)
+endif()
+
+
+option(BUILD_GUMBO_TESTS "Builds gumbo-parser tests" OFF)
 
 if(BUILD_GUMBO_TESTS)
 	add_subdirectory(tests)
